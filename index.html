@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .tab {
+      height: 400px;
+      width: 600px;
+      border: 1px solid pink;
+      margin: 0 auto;
+    }
+
+    .div1 {
+      height: 100px;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+    }
+
+    .div1 h1 {
+      flex: 1;
+      width: 25%;
+      text-align: center;
+      line-height: 98px;
+    }
+
+    .div2 {
+      height: 300px;
+      overflow: hidden;
+    }
+
+    .div2 p {
+      display: none;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      line-height: 300px;
+    }
+
+    .active {
+      display: block;
+      background-color: #ccc;
+      border-bottom: 2px solid blue;
+    }
+
+    .div2 .show {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="tab t1">
+    <div class="div1">
+      <h1 class="active">标题1</h1>
+      <h1>标题2</h1>
+      <h1>标题3</h1>
+      <h1>标题4</h1>
+    </div>
+    <div class="div2">
+      <p class="show">内容1</p>
+      <p>内容2</p>
+      <p>内容3</p>
+      <p>内容4</p>
+    </div>
+  </div>
+  <div class="tab t2">
+    <div class="div1">
+      <h1 class="active">标题1</h1>
+      <h1>标题2</h1>
+      <h1>标题3</h1>
+      <h1>标题4</h1>
+    </div>
+    <div class="div2">
+      <p class="show">内容1</p>
+      <p>内容2</p>
+      <p>内容3</p>
+      <p>内容4</p>
+    </div>
+  </div>
+  <script>
+    /*1.最简单的版本
+    var h1s = document.querySelectorAll('h1')
+    var ps = document.querySelectorAll('p')
+    h1s[0].onclick = function() {
+      h1s[1].className = ''
+      h1s[2].className = ''
+      h1s[3].className = ''
+      h1s[0].className = 'active'
+      ps[1].className = ''
+      ps[2].className = ''
+      ps[3].className = ''
+      ps[0].className = 'show'
+    }
+    h1s[1].onclick = function() {
+      h1s[0].className = ''
+      h1s[2].className = ''
+      h1s[3].className = ''
+      h1s[1].className = 'active'
+      ps[0].className = ''
+      ps[2].className = ''
+      ps[3].className = ''
+      ps[1].className = 'show'
+    }
+    h1s[2].onclick = function() {
+      h1s[1].className = ''
+      h1s[0].className = ''
+      h1s[3].className = ''
+      h1s[2].className = 'active'
+      ps[1].className = ''
+      ps[0].className = ''
+      ps[3].className = ''
+      ps[2].className = 'show'
+    }
+    h1s[3].onclick = function() {
+      h1s[1].className = ''
+      h1s[2].className = ''
+      h1s[0].className = ''
+      h1s[3].className = 'active'
+      ps[1].className = ''
+      ps[2].className = ''
+      ps[0].className = ''
+      ps[3].className = 'show'
+    }
+    这种方法虽然能实现效果，但是代码冗余
+    */
+
+    /* 2.开始进行封装(封装清除类名的函数)
+    var h1s = document.querySelectorAll('h1')
+    var ps = document.querySelectorAll('p')
+
+    function clearClass() {
+      //把所有的类名都清除掉
+      h1s[1].className = ''
+      h1s[0].className = ''
+      h1s[3].className = ''
+      h1s[2].className = ''
+      ps[1].className = ''
+      ps[0].className = ''
+      ps[3].className = ''
+      ps[2].className = ''
+    }
+    h1s[0].onclick = function () {
+      clearClass()
+      h1s[0].className = 'active'
+      ps[0].className = 'show'
+    }
+    h1s[1].onclick = function () {
+      clearClass()
+      h1s[1].className = 'active'
+      ps[1].className = 'show'
+    }
+    h1s[2].onclick = function () {
+      clearClass()
+      h1s[2].className = 'active'
+      ps[2].className = 'show'
+    }
+    h1s[3].onclick = function () {
+      clearClass()
+      h1s[3].className = 'active'
+      ps[3].className = 'show'
+    }
+    虽然有封装，但是不够优雅
+    */
+
+    /*
+    3.使用循环进行优化
+    var h1s = document.querySelectorAll('h1')
+    var ps = document.querySelectorAll('p')
+
+    function clearClass() {
+      //把所有的类名都清除掉
+      h1s[1].className = ''
+      h1s[0].className = ''
+      h1s[3].className = ''
+      h1s[2].className = ''
+      ps[1].className = ''
+      ps[0].className = ''
+      ps[3].className = ''
+      ps[2].className = ''
+    }
+    for(var i = 0;i< h1s.length;i++) {
+      h1s[i].index = i
+      h1s[i].onclick = function() {
+        clearClass()
+        h1s[this.index].className = 'active'
+        ps[this.index].className = 'show'
+      }
+    }  
+    这种非常巧妙，但是有一个不好的地方，就是有些h1和p标签是没有active和show类名的
+    但是也被清除了，有点不合理，所以接下来优化清除类名的地方
+    */
+
+    /*
+    4.进一步优化，接近完美
+      var h1s = document.querySelectorAll('h1')
+      var ps = document.querySelectorAll('p')
+      var prevIndex = 0
+      for (var i = 0; i < h1s.length; i++) {
+        h1s[i].index = i
+        h1s[i].onclick = function() {
+          h1s[prevIndex].className = ''
+          ps[prevIndex].className = ''
+          h1s[this.index].className = 'active'
+          ps[this.index].className = 'show'
+          prevIndex = this.index
+        }
+      }
+    */
+    /*
+    5.使用面向对象来写(简单版本)
+      function Tab() {
+        this.h1s = document.querySelectorAll('h1')
+        this.ps = document.querySelectorAll('p')
+        this.prevIndex = 0
+        var _this = this
+        for (var i = 0; i < this.h1s.length; i++) {
+          this.h1s[i].index = i
+          this.h1s[i].onclick = function () {
+            _this.h1s[_this.prevIndex].className = ''
+            _this.ps[_this.prevIndex].className = ''
+            _this.h1s[this.index].className = 'active'
+            _this.ps[this.index].className = 'show'
+            _this.prevIndex = this.index
+          }
+        }
+      }
+      var tab = new Tab()
+    */
+    /*
+    6.面向对象的复杂版本
+      function Tab() {
+        this.h1s = document.querySelectorAll('h1')
+        this.ps = document.querySelectorAll('p')
+        this.prevIndex = 0
+        this.addClick()
+      }
+      Tab.prototype.addClick = function() {
+        for (var i = 0; i < this.h1s.length; i++) {
+          this.h1s[i].index = i
+          var _this = this
+          this.h1s[i].onclick = function () {
+            _this.h1s[_this.prevIndex].className = ''
+            _this.ps[_this.prevIndex].className = ''
+            _this.h1s[this.index].className = 'active'
+            _this.ps[this.index].className = 'show'
+            _this.prevIndex = this.index
+          }
+        }
+      }
+      var tab = new Tab()
+    */
+    /*
+        7.考虑可复用性（第六种的没考虑有可能多个tab切换）
+        function Tab(select1,select2) {
+          this.h1s = document.querySelectorAll(select1)
+          this.ps = document.querySelectorAll(select2)
+          this.prevIndex = 0
+        }
+        Tab.prototype.addClick = function() {
+          for(var i = 0; i<this.h1s.length;i++) {
+            this.h1s[i].index = i
+            var _this = this
+            this.h1s[i].onclick = function() {
+              _this.h1s[_this.prevIndex].className = ''
+              _this.ps[_this.prevIndex].className = ''
+              _this.h1s[this.index].className = 'active'
+              _this.ps[this.index].className = 'show'
+              _this.prevIndex = this.index
+            }
+  
+          }
+        }
+        var a = new Tab('h1','p')
+        a.addClick()
+        //如果页面中还有tab切换的话，调用Tab构造函数，传入参数，即可复用
+        var b = new Tab('h2', 'p')
+        b.addClick()
+        //即可实现复用
+     */
+    /*
+      8.  按照写插件（类库）的思路来写
+          模块化（独立的作用域）
+    */
+    (function () {
+      function Tab(options) {
+        this.h1s = document.querySelectorAll(options.title)
+        this.ps = document.querySelectorAll(options.contents)
+        this.prevIndex = 0
+        this.addClick()
+      }
+      Tab.prototype.addClick = function () {
+        console.log(this.h1s)
+        for (var i = 0; i < this.h1s.length; i++) {
+          var _this = this
+          this.h1s[i].index = i
+          this.h1s[i].onclick = function () {
+            _this.h1s[_this.prevIndex].className = ''
+            _this.ps[_this.prevIndex].className = ''
+            _this.h1s[this.index].className = 'active'
+            _this.ps[this.index].className = 'show'
+            _this.prevIndex = this.index
+          }
+        }
+      }
+
+      function factory(options) {
+        return new Tab(options)
+      }
+      window.tab = factory
+    })()
+    var a = tab({
+      title: '.t1 h1',
+      contents: '.t1 p'
+    })
+    var b = tab({
+      title: '.t2 h1',
+      contents: '.t2 p'
+    })
+  </script>
+</body>
+
+</html>
